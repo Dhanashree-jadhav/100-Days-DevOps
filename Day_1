@@ -1,0 +1,45 @@
+#Introduction :#
+Today marks the start of my DevOps 100 Days Challenge 🚀.
+I’m taking one small hands-on task each day to strengthen my Linux and DevOps fundamentals and share my progress with the community.
+
+For Day 1, my task was to create a user with a non-interactive shell on App Server 3 using KodeKloud labs.
+
+#The Task#
+Create a user named siva with a non-interactive shell on App Server 3.
+
+This type of user is often used for service or automation accounts that should not have interactive login access.
+
+#What I Learned#
+Linux stores user account info in /etc/passwd.
+
+A shell is the program that starts when a user logs in (bash, sh, zsh).
+
+A non-interactive shell (like /sbin/nologin or /bin/false) prevents a user from getting a prompt.
+
+Such accounts are common for system services and automation tools.
+
+#Steps I Followed#
+1. Connect to App Server 3 (credentials from lab details)
+
+ssh tony@stapp03
+
+2. Create the user with a non-interactive shell
+
+sudo useradd -s /sbin/nologin siva
+
+3. Verify the user entry in /etc/passwd
+
+grep siva /etc/passwd
+
+#Wrap-Up#
+That’s my Day 1 of the DevOps 100 Days Challenge ✅.
+I’ve learned about Linux user management and the difference between interactive and non-interactive shells.
+
+Tomorrow I’ll be tackling the next task. Stay tuned! 🙌
+Blog Link : https://infinitryout.hashnode.dev/100-days-devops-day-1
+
+
+
+
+
+
