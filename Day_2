@@ -1,0 +1,41 @@
+DevOps 100 Days – Day 2
+
+Introduction :
+Today marks Day 2 of my DevOps 100 Days Challenge 🚀.
+I’m taking one small hands-on task each day to strengthen my Linux and DevOps fundamentals and share my progress with the community.
+
+For Day 2, my task was to create a temporary user account with an expiry date on App Server 2 using KodeKloud labs.
+
+The Task
+Create a user named ravi on App Server 2 in the Stratos Datacenter and set its expiry date to 2024-04-15.
+Temporary accounts like this are useful for contractors or developers who need access only for a limited duration.
+
+What I Learned
+Linux user information is stored in /etc/passwd.
+
+Temporary accounts can be created with an expiry date so they automatically become inactive after a certain day.
+
+The useradd -e option sets an account expiry date at the time of creation.
+
+The chage -E command can set or change the expiry date for an existing user.
+
+passwd sets a password for the new user so they can log in.
+
+You can verify the expiry date with chage -l username.
+
+Steps I Followed
+Blog Link : https://100-days-devops-day-1.hashnode.dev/devops-100-days-day-2
+
+Key Takeaways
+useradd -e sets expiry at creation time.
+
+chage -E modifies expiry for an existing account.
+
+Temporary user accounts improve security and reduce manual cleanup work.
+
+Always verify your changes using chage -l.
+
+Wrap-Up
+That’s my Day 2 of the DevOps 100 Days Challenge ✅.
+I’ve learned about Linux user management with expiry dates for temporary accounts.
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
