@@ -1,0 +1,72 @@
+DevOps 100 Days – Day 6: Automate a Cron Job on Linux
+
+Introduction
+Today, in my DevOps 100 Days Challenge 🚀, I worked on automating a simple task on Linux using cron. Cron is a scheduling utility that lets you run scripts or commands automatically at specific intervals.
+
+The goal for Day 6 was to create a sample cron job on all Nautilus app servers that writes hello into a file every 5 minutes. This is a basic simulation of how system admins automate day-to-day tasks.
+
+Step 1: Connect to the server using SSH
+First, I logged into the app server from the jumphost:
+
+ssh tony@stapp01.stratos.xfusioncorp.com
+Enter yes to accept the server key.
+
+Enter your password.
+
+Tip: Repeat this for all app servers (stapp01, stapp02, stapp03).
+
+Step 2: Check/Install Cron (cronie)
+Check if cron is installed:
+
+rpm -q cronie
+If installed, it shows the version.
+
+If not installed, run:
+
+sudo yum install -y cronie
+Step 3: Start and enable the cron service
+Start cron and make sure it runs after reboot:
+
+sudo systemctl start crond
+sudo systemctl enable crond
+sudo systemctl status crond
+You should see Active: active (running) — meaning cron is ready.
+
+Step 4: Add a sample cron job
+We want to run a command every 5 minutes that writes “hello” to /tmp/cron_text.
+
+Add the cron job for root using:
+
+echo "*/5 * * * * echo hello > /tmp/cron_text" | sudo crontab -
+Verify it:
+
+sudo crontab -l
+You should see:
+
+*/5 * * * * echo hello > /tmp/cron_text
+Important: Make sure the command is echo (not echp) and the file path is absolute /tmp/cron_text.
+
+Step 5: Test the cron job
+Wait 5–6 minutes, then check the file:
+
+cat /tmp/cron_text
+You should see:
+
+hello
+Cron will overwrite this file every 5 minutes automatically. ✅
+
+Step 6: Repeat on other servers
+SSH into stapp02 and stapp03 and repeat Steps 2–5. This ensures the cron job runs on all app servers, just like system admins intended.
+
+Key Takeaways
+Cron allows automatic scheduling of tasks in Linux.
+
+cronie package provides cron functionality; crond is the service that runs it.
+
+Cron jobs must use absolute paths and correct syntax.
+
+You can automate repetitive tasks on multiple servers efficiently.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-day-6-automate-a-cron-job-on-linux
