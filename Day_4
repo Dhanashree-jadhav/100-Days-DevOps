@@ -1,0 +1,95 @@
+DevOps 100 Days – Day 4: Making Scripts Executable on Linux
+
+Introduction
+Today is Day 4 of my DevOps 100 Days Challenge 🚀.
+My task was to grant executable permissions to a backup script /tmp/xfusioncorp.sh on App Server 2 so that all users can run it.
+
+If you’re new to Linux, this post will guide you step by step through how file permissions work and how to make any script executable.
+
+Understanding the Scenario
+A Bash script called xfusioncorp.sh is present in /tmp/ directory on App Server 2.
+
+By default it doesn’t have execute permission.
+
+Our goal: allow everyone (owner, group, others) to run the script.
+
+Step 1: Log in to the Server
+Use SSH to log into the server:
+
+ssh steve@stapp02.stratos.xfusioncorp.com
+(Replace username/host with your own credentials.)
+
+Step 2: Check File Permissions
+List the file with ls -l:
+
+ls -l /tmp/xfusioncorp.sh
+You’ll see something like:
+
+-rw-r--r-- 1 root root 40 Sep 18 08:25 /tmp/xfusioncorp.sh
+Breakdown of -rw-r--r--:
+
+r = read
+
+w = write
+
+x = execute
+
+Owner = first three letters, Group = middle three, Others = last three
+
+Here no x means the file cannot be executed.
+
+Step 3: Add Execute Permission for All Users
+Run:
+
+
+sudo chmod a+rx /tmp/xfusioncorp.sh
+chmod = change mode (permissions)
+
+a = all users (owner, group, others)
+
++rx = add read + execute permission
+
+Step 4: Verify the Change
+Run:
+
+ls -l /tmp/xfusioncorp.sh
+Now you should see:
+
+-r-xr-xr-x 1 root root 40 Sep 18 08:25 /tmp/xfusioncorp.sh
+This means:
+
+Owner: read & execute
+
+Group: read & execute
+
+Others: read & execute
+
+Everyone can now run the script.
+
+Step 5: Test Running the Script (Optional)
+
+/tmp/xfusioncorp.sh
+If it runs without “Permission denied,” you’re done ✅.
+
+Why Read + Execute?
+Unlike compiled programs, a shell script must be read by the shell to be executed. That’s why we add both r and x permissions.
+
+
+
+Key Takeaways for Beginners
+ls -l shows you exactly who can read/write/execute a file.
+
+chmod a+x file makes a file executable by everyone.
+
+For scripts, prefer chmod a+rx file so the shell can read it.
+
+Conclusion
+With a single command you can make scripts executable for all users. This is a small but essential step in automating tasks and managing permissions in Linux.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-day-4-making-scripts-executable-on-linux
+
+
+
+
