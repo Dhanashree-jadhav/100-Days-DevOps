@@ -1,0 +1,69 @@
+DevOps 100 Days – Day 5
+
+
+
+Enhancing Server Security with SELinux (Task on App Server 1)
+
+📝 Introduction
+Today in my DevOps 100 Days Challenge, I worked on improving application and server security using SELinux.
+Following a recent security audit at xFusionCorp Industries, the team decided to enable SELinux for better access control. For now, my task was to install SELinux packages and permanently disable it until configuration is ready.
+
+🛡️ What is SELinux?
+SELinux (Security-Enhanced Linux) is an additional security layer in Linux.
+It’s like having a security guard inside the system checking every action against a security policy — even if normal permissions allow it.
+
+Enforcing mode: Guard strictly enforces rules.
+
+Permissive mode: Guard just logs violations but allows actions.
+
+Disabled: Guard is off duty.
+
+This helps prevent applications from doing things they’re not supposed to, even if they’re compromised.
+
+🛠️ My Task Steps
+1️⃣ Install SELinux packages
+
+sudo yum install -y selinux-policy selinux-policy-targeted policycoreutils
+(On RHEL/CentOS servers this installs SELinux and its default policies.)
+
+2️⃣ Permanently disable SELinux
+Edit the configuration file:
+
+sudo vi /etc/selinux/config
+Change:
+
+SELINUX=enforcing
+to:
+
+SELINUX=disabled
+Save and exit. Verify:
+
+cat /etc/selinux/config
+You should see:
+
+SELINUX=disabled
+SELINUXTYPE=targeted
+3️⃣ No reboot required now
+The current getenforce output may still show “Enforcing” or “Permissive” because SELinux is running in the current kernel.
+After the next reboot (scheduled maintenance), SELinux will actually start disabled.
+
+
+✅ Outcome
+SELinux packages are installed on App Server 1.
+
+SELinux is configured to be disabled at next boot.
+
+This allows the security team to later re-enable SELinux safely with the right policies.
+
+💡 Key Takeaways
+SELinux adds an extra layer of access control.
+
+/etc/selinux/config controls SELinux mode at boot.
+
+getenforce shows current runtime status.
+
+Always roll out SELinux gradually (Disabled → Permissive → Enforcing) to avoid breaking apps.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-day-5
