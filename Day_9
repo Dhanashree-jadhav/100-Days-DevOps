@@ -20,27 +20,15 @@ Here’s a beginner-friendly walkthrough of what I did.
 1. Check the service status
 First, I logged into the DB server and ran:
 
-
-Copy
-
-Copy
 sudo systemctl status mariadb
 This showed MariaDB was inactive (dead) with error messages pointing to permission issues.
 
 2. Read MariaDB logs
 I opened the main log file:
 
-
-Copy
-
-Copy
 sudo less /var/log/mariadb/mariadb.log
 The log clearly said:
 
-
-Copy
-
-Copy
 InnoDB: Unable to create temporary file ibtmp1
 OS error number 13 in a file operation
 Error 13 means “Permission denied” on Linux.
@@ -49,10 +37,6 @@ Error 13 means “Permission denied” on Linux.
 MariaDB runs as the mysql user. Its data directory is /var/lib/mysql.
 So I gave back ownership and set proper permissions:
 
-
-Copy
-
-Copy
 sudo chown -R mysql:mysql /var/lib/mysql
 sudo chmod -R 750 /var/lib/mysql
 This ensures only the mysql user (and root) can read/write inside.
@@ -60,25 +44,13 @@ This ensures only the mysql user (and root) can read/write inside.
 4. Remove stale socket file (if present)
 Sometimes a leftover socket file blocks the new process. I checked:
 
-
-Copy
-
-Copy
 sudo ls -l /var/lib/mysql/*.sock
 If any .sock file existed while MariaDB wasn’t running, I deleted it:
 
-
-Copy
-
-Copy
 sudo rm -f /var/lib/mysql/mysql.sock
 5. Restart MariaDB
 Now I restarted the service:
 
-
-Copy
-
-Copy
 sudo systemctl restart mariadb
 sudo systemctl status mariadb
 The service showed active (running) ✅.
@@ -87,14 +59,9 @@ The service showed active (running) ✅.
 MariaDB root user is often linked to the Linux root user via the unix_socket plugin.
 So I switched to root and logged in:
 
-
-Copy
-
-Copy
 sudo su -
 mysql -u root
 I got the MariaDB prompt without error, confirming it was working.
-
 
 
 ✅ Conclusion
