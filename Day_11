@@ -1,0 +1,73 @@
+DevOps 100 Days Challenge-Day 11 : – Deploying a Java Application on Tomcat (Port 3002)
+
+Introduction
+In production environments, deploying applications on reliable servers is a crucial responsibility of DevOps engineers.
+The Nautilus DevOps team recently completed the beta version of a Java-based application and decided to host it on a Tomcat application server.
+
+In this task, I was asked to:
+
+Install Tomcat on App Server 2 (stapp02).
+
+Configure it to run on port 3002 (instead of the default 8080).
+
+Deploy a given ROOT.war application from the jump host.
+
+Ensure the app works directly on the base URL → http://stapp02:3002.
+
+⚙️ Step 1: SSH into App Server 2
+I first logged into the App Server 2 using the jump host:
+
+ssh steve@stapp02.stratos.xfusioncorp.com
+⚙️ Step 2: Install Tomcat
+Tomcat was installed along with its required components:
+
+sudo yum install -y tomcat tomcat-webapps tomcat-admin-webapps
+Enable and start the service:
+
+sudo systemctl enable tomcat
+sudo systemctl start tomcat
+⚙️ Step 3: Configure Tomcat to Run on Port 3002
+By default, Tomcat listens on 8080. I updated the config file:
+
+sudo vi /etc/tomcat/server.xml
+Changed the Connector port:
+
+<Connector port="3002" protocol="HTTP/1.1" ... />
+Then restarted Tomcat:
+
+sudo systemctl restart tomcat
+⚙️ Step 4: Deploy the Application (ROOT.war)
+The provided ROOT.war file was available on the jump host under /tmp.
+I copied it to App Server 2:
+
+scp /tmp/ROOT.war steve@stapp02.stratos.xfusioncorp.com:/tmp/
+Then deployed it into Tomcat’s webapps directory:
+
+sudo mv /tmp/ROOT.war /usr/share/tomcat/webapps/ROOT.war
+Since it is named ROOT.war, Tomcat automatically deploys it as the default application.
+
+⚙️ Step 5: Verify Deployment
+Finally, I tested the application:
+
+curl http://localhost:3002
+✅ Output:
+
+<h2>Welcome to xFusionCorp Industries!</h2>
+This confirmed that the application was successfully deployed and accessible on the desired port.
+
+📝 Conclusion
+In this task, I successfully:
+
+Installed and configured Tomcat on App Server 2.
+
+Changed the port to 3002.
+
+Deployed the ROOT.war application.
+
+Verified that the app works at http://stapp02:3002.
+
+This exercise gave me hands-on experience in deploying a Java web application on Tomcat, modifying its configuration, and ensuring smooth accessibility — a core responsibility in real-world DevOps.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-11-deploying-a-java-application-on-tomcat-port-3002
