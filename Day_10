@@ -1,0 +1,115 @@
+DevOps 100 Days – Day 10 : Automating Website Backups on Linux
+
+Introduction
+In production environments, backups are critical—you never want to lose your website data.
+
+The production support team at xFusionCorp Industries needed a simple, repeatable way to back up their static beta site running on App Server 2 and copy those backups to a central backup server.
+
+This post shows, step by step, how I built a Bash script that:
+
+Compresses the website folder into a .zip
+
+Saves it locally on the app server
+
+Copies it automatically to a remote backup server without asking for a password
+
+Even if you’re new to Linux, you can follow along.
+
+Prerequisites
+Access to App Server 2 (where the beta website files live)
+
+Access to the Backup Server (where backups will be stored)
+
+Basic ability to run commands with SSH
+
+Step 1 – Connect to the App Server
+
+ssh steve@stapp02.stratos.xfusioncorp.com
+You’ll now be working on App Server 2 as the steve user.
+
+Step 2 – Install Zip Utility
+Our script uses zip to create the archive. Install it once:
+
+sudo yum install -y zip
+Step 3 – Prepare Directories
+Create a folder for scripts and for local backups:
+
+
+mkdir -p /scripts
+mkdir -p /backup
+Step 4 – Enable Passwordless Copy to Backup Server
+Generate an SSH key on App Server 2:
+
+
+ssh-keygen -t rsa   # press Enter for all prompts
+Copy the public key to the backup server (user clint):
+
+
+ssh-copy-id clint@stbkp01.stratos.xfusioncorp.com
+Test login:
+
+ssh clint@stbkp01.stratos.xfusioncorp.com
+exit
+If no password prompt appears, it’s set up correctly.
+
+Step 5 – Create the Backup Script
+Open a new script file:
+
+vi /scripts/beta_backup.sh
+Paste:
+
+#!/bin/bash
+
+# Variables
+SRC_DIR="/var/www/html/beta"
+BACKUP_NAME="xfusioncorp_beta_$(date +%F_%H-%M-%S).zip"
+LOCAL_BACKUP_DIR="/backup"
+REMOTE_USER="clint"
+REMOTE_HOST="stbkp01.stratos.xfusioncorp.com"
+REMOTE_BACKUP_DIR="/backup"
+
+# Ensure local backup directory exists
+mkdir -p "$LOCAL_BACKUP_DIR"
+
+# Create zip archive of the beta folder
+zip -r "${LOCAL_BACKUP_DIR}/${BACKUP_NAME}" "$SRC_DIR"
+
+# Copy the zip archive to Backup Server
+scp "${LOCAL_BACKUP_DIR}/${BACKUP_NAME}" ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_BACKUP_DIR}/
+Save and exit (:wq).
+
+Make it executable:
+
+chmod +x /scripts/beta_backup.sh
+Step 6 – Run the Script
+
+/scripts/beta_backup.sh
+It will:
+
+Create a dated .zip file under /backup on App Server 2
+
+Copy it to /backup on the backup server
+
+Verify:
+ls -l /backup/
+ssh clint@stbkp01.stratos.xfusioncorp.com "ls -l /backup/"
+Step 7 – Done!
+You now have an automated backup script.
+Because the filename includes the date and time, each run creates a new backup without overwriting the old one.
+
+Key Takeaways
+SSH + keys let you automate secure transfers without passwords.
+
+Variables at the top of the script make it easy to adapt to new paths or servers.
+
+Timestamps keep your backups unique and prevent overwrites.
+
+The same logic works for any folder — just change the variables.
+
+Conclusion
+Automating backups with Bash is a simple but powerful DevOps skill.
+With just a few commands, you can secure your website data and reduce manual work.
+
+This exercise taught me not just to “run commands,” but to understand each step — install tools, set up keys, script the task, test, and verify.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
