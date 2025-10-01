@@ -1,0 +1,116 @@
+DevOps 100 Days – Day 9: Fixing MariaDB Service Outage
+
+ Introduction
+Today’s task in my DevOps 100 Days Challenge was about real-world troubleshooting.
+Our production-like application suddenly couldn’t connect to its database. After checking, we found the MariaDB service was down on the database server.
+
+This task taught me how to:
+
+read MariaDB logs,
+
+understand socket/permission errors,
+
+fix ownership of database files,
+
+restart and verify the service.
+
+Here’s a beginner-friendly walkthrough of what I did.
+
+🛠️ Steps I Followed
+1. Check the service status
+First, I logged into the DB server and ran:
+
+
+Copy
+
+Copy
+sudo systemctl status mariadb
+This showed MariaDB was inactive (dead) with error messages pointing to permission issues.
+
+2. Read MariaDB logs
+I opened the main log file:
+
+
+Copy
+
+Copy
+sudo less /var/log/mariadb/mariadb.log
+The log clearly said:
+
+
+Copy
+
+Copy
+InnoDB: Unable to create temporary file ibtmp1
+OS error number 13 in a file operation
+Error 13 means “Permission denied” on Linux.
+
+3. Fix ownership and permissions
+MariaDB runs as the mysql user. Its data directory is /var/lib/mysql.
+So I gave back ownership and set proper permissions:
+
+
+Copy
+
+Copy
+sudo chown -R mysql:mysql /var/lib/mysql
+sudo chmod -R 750 /var/lib/mysql
+This ensures only the mysql user (and root) can read/write inside.
+
+4. Remove stale socket file (if present)
+Sometimes a leftover socket file blocks the new process. I checked:
+
+
+Copy
+
+Copy
+sudo ls -l /var/lib/mysql/*.sock
+If any .sock file existed while MariaDB wasn’t running, I deleted it:
+
+
+Copy
+
+Copy
+sudo rm -f /var/lib/mysql/mysql.sock
+5. Restart MariaDB
+Now I restarted the service:
+
+
+Copy
+
+Copy
+sudo systemctl restart mariadb
+sudo systemctl status mariadb
+The service showed active (running) ✅.
+
+6. Test the database login
+MariaDB root user is often linked to the Linux root user via the unix_socket plugin.
+So I switched to root and logged in:
+
+
+Copy
+
+Copy
+sudo su -
+mysql -u root
+I got the MariaDB prompt without error, confirming it was working.
+
+
+
+✅ Conclusion
+This task showed me a real-life DevOps scenario: a production database service went down due to permission problems. 
+By checking logs, fixing ownership, and restarting the service, I brought it back online.
+
+Key lessons:
+
+Always check systemctl status + logs first.
+
+MariaDB runs as mysql user, so its directories must belong to that user.
+
+Socket files are just special “doors” between client and server processes.
+
+I’m now more confident handling database service outages. 🚀
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-day-9-fixing-mariadb-service-outage
