@@ -1,0 +1,82 @@
+DevOps 100 Days – Day 7: Setting Up Password-less SSH Access from Jump Host to App Servers
+
+Introduction
+
+Today’s task was about configuring secure, password-less SSH access from our jump host to all the app servers in the Stratos Datacenter. 
+This setup is critical for automation: scripts running on the jump host can log in to app servers without human intervention, yet still stay secure.
+
+What We’re Solving
+
+We have a jump host where user thor runs automation scripts.
+
+We have three application servers with sudo users tony, steve, and banner.
+
+We want thor@jumphost to log in to these servers without typing a password each time.
+
+This is done using SSH key-based authentication instead of password authentication.
+
+Step-by-Step Implementation
+
+1. Log in to the Jump Host as thor
+
+ssh thor@jumphost
+
+2. Generate an SSH Key Pair
+
+Run:
+
+ssh-keygen -t rsa
+
+Press Enter for each prompt to accept defaults and no passphrase.
+This creates:
+
+Private key: /home/thor/.ssh/id_rsa
+
+Public key: /home/thor/.ssh/id_rsa.pub
+
+3. Copy the Public Key to Each App Server’s User
+
+Use ssh-copy-id to install your public key on each server:
+
+ssh-copy-id tony@stapp01.stratos.xfusioncorp.com
+ssh-copy-id steve@stapp02.stratos.xfusioncorp.com
+ssh-copy-id banner@stapp03.stratos.xfusioncorp.com
+
+Enter each user’s password once when prompted.
+This appends your public key to ~/.ssh/authorized_keys on each server.
+
+4. Test Passwordless SSH
+
+ssh tony@stapp01.stratos.xfusioncorp.com
+ssh steve@stapp02.stratos.xfusioncorp.com
+ssh banner@stapp03.stratos.xfusioncorp.com
+
+You should log in without any password prompts.
+
+How It Works Internally
+
+ssh-keygen creates a private/public key pair.
+
+ssh-copy-id copies your public key into the server’s authorized_keys for that user.
+
+When you SSH in, your client uses the private key to prove your identity. The server checks against the public key and logs you in automatically.
+
+This is more secure than passwords and enables automation.
+
+Outcome
+
+Now thor can securely run scripts from the jump host on all app servers without manual password entry, which is essential for cron jobs, configuration management, and CI/CD pipelines.
+
+Key Takeaways
+
+Use SSH keys for secure, passwordless logins.
+
+ssh-keygen creates the keys.
+
+ssh-copy-id installs your public key on a server quickly.
+
+Always check and set correct permissions on .ssh directories and authorized_keys files.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://hashnode.com/post/cmfxq8bav000002i8b8d122ux
