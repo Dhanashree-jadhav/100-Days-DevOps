@@ -1,0 +1,125 @@
+DevOps 100 Days Challenge-Day 12 : Troubleshooting Apache HTTP Server on Linux: Port Conflicts and Firewall Fixes
+
+Introduction
+
+Managing web servers is a critical task for system administrators and DevOps engineers. 
+In this guide, we’ll walk through a real-world scenario where Apache HTTP Server (httpd) fails to start due to a port conflict and restricted external access. 
+You’ll learn how to identify the issue, fix it, and make your server accessible externally using iptables.
+
+This guide assumes a Linux environment (CentOS/RHEL) but the concepts are widely applicable.
+
+Scenario
+
+You try to start Apache on port 5002, but it fails:
+
+sudo systemctl status httpd
+
+Error message:
+
+(98)Address already in use: AH00072: make_sock: could not bind to address 0.0.0.0:5002
+
+This means another process is already using the port Apache wants.
+
+Step 1: Identify the Port Conflict
+
+Use netstat to check which process is using port 5002:
+
+sudo netstat -tulnp | grep 5002
+
+Output:
+
+tcp 0 0 127.0.0.1:5002 0.0.0.0:* LISTEN 434/sendmail:accept
+
+Analysis: sendmail is occupying port 5002. Apache cannot bind to it until the port is free.
+
+Step 2: Stop the Conflicting Service
+
+Stop and disable sendmail:
+
+sudo systemctl stop sendmail
+sudo systemctl disable sendmail
+
+stop → stops the service immediately.
+
+disable → prevents it from starting automatically on boot.
+
+Step 3: Restart Apache
+
+Now that port 5002 is free, restart Apache:
+
+sudo systemctl restart httpd
+sudo systemctl status httpd
+
+Apache should now be active and running.
+
+Confirm it’s listening on the correct port:
+
+sudo netstat -tulnp | grep httpd
+
+Step 4: Test Apache Locally
+
+Check Apache response locally using curl:
+
+curl -I http://localhost:5002
+
+Response: HTTP/1.1 403 Forbidden
+
+Meaning: Apache is running, but access is restricted (directory permissions or missing index file). This is expected during initial testing.
+
+Step 5: Check External Access
+
+From a remote host:
+
+curl -I http://stapp01:5002
+
+If you get No route to host, the firewall is blocking the connection.
+
+Step 6: Open the Port in Firewall (iptables)
+
+Check existing firewall rules:
+
+sudo iptables -L -n -v
+
+Allow external traffic on port 5002:
+
+sudo iptables -I INPUT 4 -p tcp --dport 5002 -j ACCEPT
+
+Verify the new rule:
+
+sudo iptables -L -n --line-numbers
+
+Step 7: Test Apache Externally Again
+
+After updating iptables:
+
+curl -I http://stapp01:5002
+
+Response: HTTP/1.1 403 Forbidden
+
+Apache is now reachable externally. The 403 is unrelated to network connectivity.
+
+Key Takeaways
+
+Service Conflicts: Always check which process is using the port when a service fails to start.
+
+Firewall: Even if a service is running, firewalls may block external access.
+
+Troubleshooting Workflow:
+
+Check service status
+
+Identify port conflicts
+
+Stop/disable conflicting services
+
+Restart your service
+
+Open firewall rules
+
+Test locally and externally
+
+Linux Commands to Know: systemctl, netstat, iptables, curl
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://hashnode.com/post/cmgap8f7q000202jo8it18tp7
