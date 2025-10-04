@@ -1,0 +1,108 @@
+DevOps 100 Days Challenge-Day 13 :Securing Apache with iptables on Nautilus Infrastructure
+
+📌 Introduction
+In real-world production environments, security is just as critical as availability. Leaving application ports open to the world exposes your infrastructure to unnecessary risks.
+
+Recently, the Nautilus security team raised a concern:
+Our application servers were running Apache on port 8086, but this port was open to everyone since there was no firewall running on the hosts.
+
+To address this, we implemented a firewall layer using iptables with the following requirements:
+
+Install iptables and dependencies on all app hosts.
+
+Block incoming access to port 8086 for everyone except the Load Balancer (LBR) host.
+
+Ensure firewall rules persist after a system reboot.
+
+⚙️ Step-by-Step Implementation
+
+Step 1: Connect to App Servers
+We connected to each application server (stapp01, stapp02, stapp03) from the jumphost using SSH:
+
+ssh tony@stapp01
+ssh steve@stapp02
+ssh banner@stapp03
+
+
+Step 2: Install iptables-services
+By default, some CentOS/Stream servers may not have iptables service installed. We installed it along with dependencies:
+
+
+sudo yum install iptables-services -y
+
+
+Step 3: Flush Existing Rules
+Before applying new rules, it’s always good to clear old or conflicting firewall rules:
+
+sudo iptables -F
+
+
+Step 4: Allow Access from LBR Host
+The Load Balancer (LBR) host IP is 172.16.238.14.
+We explicitly allowed port 8086 traffic only from this host:
+
+sudo iptables -A INPUT -p tcp --dport 8086 -s 172.16.238.14 -j ACCEPT
+
+
+Step 5: Block Everyone Else
+To ensure no other host can connect to Apache’s port 8086, we added a DROP rule:
+
+sudo iptables -A INPUT -p tcp --dport 8086 -j DROP
+
+
+Step 6: Verify Rules
+We checked whether the rules were applied successfully:
+
+sudo iptables -L -n -v
+✅ Expected output:
+
+ACCEPT     tcp  --  172.16.238.14       0.0.0.0/0       tcp dpt:8086
+DROP       tcp  --  0.0.0.0/0           0.0.0.0/0       tcp dpt:8086
+
+
+Step 7: Make Rules Persistent
+By default, iptables rules are not persistent across reboots. To save and enable them:
+
+sudo service iptables save
+sudo systemctl enable iptables
+sudo systemctl start iptables
+This ensures the rules load automatically after a system reboot.
+
+
+
+✅ Final Verification
+Apache is still listening on port 8086 (ss -tuln | grep 8086).
+
+Only the LBR host (172.16.238.14) can connect to it.
+
+All other connections are dropped silently.
+
+📖 Key Learnings
+iptables provides fine-grained control over network traffic.
+
+Always allow specific trusted sources instead of exposing ports globally.
+
+Persistence is crucial – without saving the rules, they’d vanish after reboot.
+
+Security in DevOps is not just about fixing issues but designing preventive layers.
+
+🏁 Conclusion
+With this setup, the Nautilus infrastructure is now more secure:
+Apache’s port 8086 is shielded behind iptables, only accessible by the Load Balancer.
+
+This task was a practical exercise in implementing network security controls using iptables, which is a fundamental skill for DevOps engineers in production environments.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+
+🧠 Quick Summary Table
+Step	Command	Purpose
+1	sudo yum install iptables-services -y	Install firewall service
+2	sudo iptables -F	Clear old rules
+3	sudo iptables -A INPUT -p tcp --dport 8086 -s 172.16.238.14 -j ACCEPT	Allow monitoring server
+4	sudo iptables -A INPUT -p tcp --dport 8086 -j DROP	Block everyone else
+5	sudo service iptables save	Save rules to config file
+6	sudo systemctl enable iptables	Enable firewall on boot
+7	sudo systemctl start iptables	Start firewall service
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-13-securing-apache-with-iptables-on-nautilus-infrastructure
