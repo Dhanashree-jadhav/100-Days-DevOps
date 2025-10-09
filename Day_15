@@ -1,0 +1,148 @@
+DevOps 100 Days Challenge-Day 15 : Securing a Web Server with Nginx and SSL
+
+In every real-world infrastructure, security is never optional. One of the most common ways to secure web applications is to enable HTTPS using SSL/TLS certificates.
+
+This is exactly what I did in Task 15 of the DevOps Challenge on KodeKloud — setting up nginx on App Server 2 and securing it with a self-signed SSL certificate.
+
+In this article, I’ll walk you through:
+
+✅ The objective of the task
+
+🧑‍💻 Step-by-step implementation
+
+🔐 Why each step matters
+
+🧠 Real-world use cases & interview insights
+
+🧭 Task Objective
+The system admins team of xFusionCorp Industries needs to deploy a new application on App Server 2 in the Stratos Datacenter.
+
+Before deployment, the server must be prepared with these requirements:
+
+Install and configure Nginx on App Server 2.
+
+Move the self-signed SSL certificate and key (/tmp/nautilus.crt and /tmp/nautilus.key) to an appropriate location and configure Nginx to use them.
+
+Create a simple index.html file with Welcome! as content under Nginx’s document root.
+
+Access the application securely from the jump host using HTTPS (curl -Ik https://<app-server-ip>/).
+
+🧑‍💻 Step 1: Connect to the App Server
+
+ssh steve@stapp02
+📌 This connects you to App Server 2 using SSH. In real projects, SSH is the standard way for admins to configure and maintain remote servers.
+
+🌐 Step 2: Install Nginx
+
+sudo yum install nginx -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo systemctl status nginx
+✅ Why:
+
+Nginx acts as the web server to host our application.
+
+Enabling the service ensures it starts automatically after a reboot.
+
+Checking status confirms successful installation.
+
+💼 Real-world example:
+Many organizations use Nginx as a reverse proxy or static file server for internal dashboards and external applications.
+
+🔐 Step 3: Move SSL Certificates to a Secure Directory
+
+sudo mkdir -p /etc/nginx/ssl
+sudo mv /tmp/nautilus.crt /etc/nginx/ssl/
+sudo mv /tmp/nautilus.key /etc/nginx/ssl/
+✅ Why:
+
+/etc/nginx/ssl is a secure, standard location for SSL certificates.
+
+Storing certificates in /tmp is risky because the directory is temporary and can be cleared after a reboot.
+
+💼 Real-world example:
+In production, companies use trusted CA-signed certificates stored in restricted directories with limited access.
+
+📝 Step 4: Configure SSL in Nginx
+We edit the config file:
+
+sudo vi /etc/nginx/conf.d/ssl.conf
+And add this server block:
+
+server {
+    listen 443 ssl;
+    server_name stapp02;
+
+    ssl_certificate     /etc/nginx/ssl/nautilus.crt;
+    ssl_certificate_key /etc/nginx/ssl/nautilus.key;
+
+    root /usr/share/nginx/html;
+    index index.html;
+}
+✅ Why:
+
+Port 443 is the standard HTTPS port.
+
+This configuration tells Nginx to use SSL and serve files securely.
+
+💼 Real-world example:
+When you visit https://your-company-portal.com, a similar SSL block ensures the connection is encrypted.
+
+🧾 Step 5: Create a Simple Web Page
+
+echo "Welcome!" | sudo tee /usr/share/nginx/html/index.html
+✅ Why:
+We need some content to verify SSL is working correctly.
+
+💼 Real-world example:
+In production, this directory would contain a React, Angular, or static site build.
+
+🧪 Step 6: Test and Reload Nginx
+
+sudo nginx -t
+sudo systemctl reload nginx
+✅ Why:
+
+nginx -t checks for syntax errors — this avoids accidental downtime.
+
+Reloading applies the new configuration without restarting the service.
+
+🧭 Step 7: Test HTTPS Access
+From the jump host:
+
+curl -Ik https://172.16.238.11/
+Expected output:
+
+HTTP/1.1 200 OK
+Server: nginx/1.20.1
+Content-Type: text/html
+And:
+
+curl -k https://172.16.238.11/
+Welcome!
+✅ Why:
+-k allows curl to accept self-signed certificates. Seeing 200 OK confirms SSL is working.
+
+💼 Real-world example:
+In CI/CD pipelines, automated curl or health checks verify application readiness before deployment.
+
+Real-World Relevance
+This task mirrors what happens in actual DevOps teams:
+
+Web servers like Nginx are often used as entry points to apps.
+
+SSL configuration is essential to secure internal tools and external products.
+
+Troubleshooting using curl and logs is part of daily production work.
+
+Troubleshooting Tips
+If curl fails, check:
+Nginx status: systemctl status nginx
+SSL paths in config
+Firewall rules / ports
+Error logs: /var/log/nginx/error.log
+Always test configuration before applying changes.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-15-securing-a-web-server-with-nginx-and-ssl
