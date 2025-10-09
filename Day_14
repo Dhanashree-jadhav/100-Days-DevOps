@@ -1,0 +1,92 @@
+DevOps 100 Days Challenge-Day 14 : Fixing Apache Service Unavailability on App Server
+
+
+📌 Introduction
+In production environments, it’s critical to ensure that all essential services like web servers remain available and healthy. During routine monitoring at xFusionCorp Industries, one of the monitoring tools reported that the Apache HTTP service was down on one of the application servers in Stratos DC.
+
+Our goal was to:
+
+Identify the faulty application host.
+
+Fix the Apache service issue.
+
+Ensure Apache is running on port 6300 on all app servers.
+
+🖥️ Step 1 — SSH into the App Server
+We first connected to the suspected app server (stapp01) from the jumphost:
+
+ssh tony@stapp01
+Once logged in, we checked the status of Apache:
+
+sudo systemctl status httpd
+📌 Result: The service was in a failed state.
+
+🧭 Step 2 — Verify the Apache Configuration
+We verified which port Apache was configured to listen on:
+
+sudo grep -R "Listen" /etc/httpd/conf/httpd.conf
+📌 It was correctly set to:
+
+Listen 6300
+We also tested the configuration syntax:
+
+sudo httpd -t
+Result: Syntax OK ✅
+
+🕵️ Step 3 — Find the Root Cause of the Failure
+Checking the detailed status showed:
+
+(98)Address already in use: make_sock: could not bind to address 0.0.0.0:6300
+This means another service was already using port 6300, preventing Apache from starting.
+
+To confirm, we ran:
+
+sudo ss -ltnp | grep 6300
+📌 Output:
+
+LISTEN 0 10 127.0.0.1:6300 *:* users:(("sendmail",pid=549,fd=4))
+✅ The sendmail service was using port 6300.
+
+🔧 Step 4 — Stop the Conflicting Service
+We stopped the service that was blocking Apache:
+
+sudo systemctl stop sendmail
+We then confirmed the port was free:
+
+sudo ss -ltnp | grep 6300
+📌 No output = port 6300 is now available.
+
+🚀 Step 5 — Start Apache Service
+With the port free, we restarted Apache:
+
+sudo systemctl start httpd
+sudo systemctl status httpd
+📌 Status:
+
+Active: active (running)
+We also verified Apache was now listening on port 6300:
+
+sudo ss -ltnp | grep httpd
+✅ Output:
+
+LISTEN *:6300 users:(("httpd",pid=...))
+🌐 Step 6 — Verify from Jumphost
+To ensure external connectivity, we ran:
+
+curl -I http://stapp01:6300
+This confirmed the service was up and reachable.
+
+Final Result
+✅ Identified the cause of Apache failure (port conflict with sendmail).
+
+✅ Freed port 6300 by stopping the conflicting service.
+
+✅ Restarted Apache successfully.
+
+✅ Verified Apache is listening on port 6300.
+
+✅ Confirmed accessibility from the jumphost.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-14-fixing-apache-service-unavailability-on-app-server
