@@ -1,0 +1,135 @@
+DevOps 100 Days Challenge-Day 18 : Deploy WordPress on xFusionCorp Infra with MariaDB
+
+xFusionCorp Industries is planning to host a WordPress website on their infrastructure in the Stratos Datacenter.
+  The storage team has already created a shared directory /vaw/www/html, which is mounted on all app servers under /var/www/html.
+
+In this guide, we will set up Apache + PHP on app servers, MariaDB on DB server, configure database connectivity, and verify WordPress connectivity.
+
+Step 1: Install Apache, PHP and Dependencies on App Servers
+Login to each App server (stapp01, stapp02, stapp03) and run:
+
+sudo yum install httpd php php-mysqlnd php-fpm php-cli -y
+Explanation:
+
+httpd → Apache web server
+
+php → PHP language support
+
+php-mysqlnd → PHP MySQL driver
+
+php-fpm, php-cli → Required PHP extensions for WordPress
+
+Set Apache to listen on port 6000:
+
+sudo vi /etc/httpd/conf/httpd.conf
+Change or add:
+
+Listen 6000
+Start Apache and enable on boot:
+
+sudo systemctl enable httpd
+sudo systemctl start httpd
+sudo systemctl status httpd
+Step 2: Configure MariaDB Server on DB Host
+Login to DB server (stdb01):
+
+sudo yum install mariadb-server -y
+sudo systemctl enable mariadb
+sudo systemctl start mariadb
+sudo systemctl status mariadb
+Secure MariaDB installation:
+
+sudo mysql_secure_installation
+Remove anonymous users → Y
+
+Disallow remote root login → Y
+
+Remove test database → Y
+
+Reload privilege tables → Y
+
+Step 3: Create Database and User
+Login to MariaDB:
+
+sudo mysql -u root
+Create database:
+
+CREATE DATABASE IF NOT EXISTS kodekloud_db9;
+Create database user and grant privileges:
+
+CREATE USER IF NOT EXISTS 'kodekloud_cap'@'%' IDENTIFIED BY '8FmzjvFU6S';
+GRANT ALL PRIVILEGES ON kodekloud_db9.* TO 'kodekloud_cap'@'%';
+FLUSH PRIVILEGES;
+EXIT;
+Step 4: Enable Remote Access to MariaDB
+Edit MariaDB server config:
+
+sudo vi /etc/my.cnf.d/mariadb-server.cnf
+Add bind-address under [mysqld] section:
+
+[mysqld]
+datadir=/var/lib/mysql
+socket=/var/lib/mysql/mysql.sock
+bind-address=0.0.0.0
+log-error=/var/log/mariadb/mariadb.log
+pid-file=/run/mariadb/mariadb.pid
+Restart MariaDB:
+
+sudo systemctl restart mariadb
+sudo systemctl status mariadb
+Verify listening on all interfaces:
+
+sudo ss -tuln | grep 3306
+Expected output:
+
+LISTEN 0 80 *:3306 *:*
+Step 5: Install MySQL Client on App Hosts
+On each App server:
+
+sudo yum install mysql -y
+mysql --version
+Step 6: Test Database Connectivity from App Servers
+
+mysql -u kodekloud_cap -p8FmzjvFU6S -h 172.16.239.10 -e "SHOW DATABASES;"
+Expected output:
+
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| kodekloud_db9      |
++--------------------+
+✅ This confirms that the app server can connect to the DB server.
+
+Step 7: Verify WordPress Connectivity via Load Balancer
+Make sure all app servers are serving Apache on port 6000.
+
+Navigate to the Load Balancer URL (LBR link).
+
+Click on the App button.
+
+Expected message:
+
+App is able to connect to the database using user kodekloud_cap
+This confirms WordPress app can communicate with MariaDB successfully.
+
+Summary
+Component	Configuration
+App servers	Apache 6000, PHP installed, shared /var/www/html mounted
+DB server	MariaDB installed, secured, remote access enabled
+Database	kodekloud_db9
+DB User	kodekloud_cap with password 8FmzjvFU6S
+Connectivity	App servers can connect via MySQL client and WordPress LBR link
+
+Key Notes
+Always secure MariaDB using mysql_secure_installation.
+
+For multi-server setups, bind-address=0.0.0.0 is required for remote app connectivity.
+
+Testing connectivity via mysql client before WordPress setup prevents debugging headaches.
+
+Apache on non-standard ports (6000) must be allowed in firewall if needed (firewall-cmd).
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+  Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-17-postgresql-setup-for-nautilus-application
