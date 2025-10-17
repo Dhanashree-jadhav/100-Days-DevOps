@@ -1,0 +1,117 @@
+DevOps 100 Days Challenge-Day 17 : PostgreSQL Setup for Nautilus Application
+
+D
+As part of Day 17 of the KodeCloud DevOps Challenge, our task was to prepare the PostgreSQL database environment for a newly developed Nautilus application.
+The application requires a dedicated database and user to store and manage its data.
+
+In this article, I will explain step-by-step how I completed the task, including commands, their purpose, and why these steps are important in real-time scenarios.
+
+Task Requirements
+The requirements shared by the Nautilus application team were:
+
+Create a database user: kodekloud_top with password GyQkFRVNr3.
+
+Create a database: kodekloud_db8.
+
+Grant full privileges of the database to the new user.
+
+Do not restart PostgreSQL service.
+
+Infrastructure details (Database server):
+
+Server	IP	User	Purpose
+stdb01	172.16.239.10	peter	Nautilus DB Server
+Step 1: Connect to the Database Server
+First, we need to connect to the DB server via SSH:
+
+ssh peter@stdb01.stratos.xfusioncorp.com
+SSH (Secure Shell) allows secure access to remote servers.
+
+On the first connection, the server fingerprint is verified, and the host is added to known hosts.
+
+Step 2: Switch to the PostgreSQL Admin User
+PostgreSQL runs under its own Linux user postgres. Only this user can manage databases and users.
+
+
+sudo -i -u postgres
+sudo = run a command as admin.
+
+-i = open a login shell.
+
+-u postgres = switch to the PostgreSQL system user.
+
+Step 3: Open PostgreSQL CLI
+
+psql
+psql = PostgreSQL command-line interface.
+
+Prompt changes to postgres=#, indicating you are now inside PostgreSQL.
+
+Step 4: Create a Database User
+
+CREATE USER kodekloud_top WITH PASSWORD 'GyQkFRVNr3';
+Creates a new database user kodekloud_top with the specified password.
+Check user creation:
+
+\du
+\du lists all database roles/users.
+Why:
+
+Each application should have its own user for security and isolation.
+
+This prevents apps from accessing other databases unintentionally.
+
+Step 5: Create a Database
+
+CREATE DATABASE kodekloud_db8;
+Check database creation:
+
+\l
+\l lists all databases.
+Why:
+
+Applications need dedicated databases to store their data safely.
+
+Here, kodekloud_db8 will store all data for the new Nautilus app.
+
+Step 6: Grant Privileges to the User
+
+GRANT ALL PRIVILEGES ON DATABASE kodekloud_db8 TO kodekloud_top;
+Grants full access to the user on the database.
+
+User can create tables, insert, update, and delete data.
+
+Optional Test:
+Log in as the new user to verify:
+
+psql -U kodekloud_top -d kodekloud_db8 -h localhost
+If login succeeds, the user has proper access.
+Why:
+
+Without privileges, the user cannot use the database.
+
+Granting proper privileges ensures the app works seamlessly.
+
+Step 7: Exit PostgreSQL CLI and Linux User
+
+\q   # Exit PostgreSQL CLI
+exit  # Exit postgres user back to peter
+Safely closes your session.
+
+Key Takeaways
+We created a dedicated database user and database for the app.
+
+Proper privileges were assigned for secure and isolated access.
+
+No service restart was required; changes are applied immediately.
+
+This is a standard DevOps practice before deploying any application that depends on a database.
+
+✅ Conclusion
+Day 17 focused on database preparation, a critical step in the DevOps workflow. Setting up a dedicated PostgreSQL user and database ensures the application can operate securely and efficiently.
+
+Following these steps is essential for real-time deployments in production environments.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-17-postgresql-setup-for-nautilus-application
