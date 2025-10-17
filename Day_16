@@ -1,0 +1,127 @@
+DevOps 100 Days Challenge-Day 16 : Configuring Nginx Load Balancer on Nautilus Infra
+
+In high availability environments, it’s essential to ensure that no single server becomes a bottleneck. 
+In this task, we configured an Nginx Load Balancer (LBR) to distribute traffic across three App Servers, achieving high availability for our web application on the Nautilus infrastructure in Stratos DC.
+
+Step 1: Access the Load Balancer Server
+We connected to the LBR server using SSH:
+
+ssh loki@172.16.238.14
+ssh: Secure Shell, used to log in to another server securely.
+
+loki: Username on the remote server.
+
+172.16.238.14: IP address of the server.
+
+💡 Think of SSH as remotely logging into your office computer from home.
+
+Step 2: Install Nginx
+Before installing Nginx, we ensured the EPEL repository was installed:
+
+sudo yum install -y epel-release
+Then we installed Nginx:
+
+sudo yum install -y nginx
+sudo: Run commands with administrator privileges.
+
+yum: Linux package manager to install software.
+
+-y: Automatically answer "yes" to prompts.
+
+💡 Analogy: Installing Nginx is like hiring a receptionist who will distribute incoming visitors (requests) to the right departments (App Servers).
+
+Step 3: Enable and Start Nginx
+We enabled Nginx to start automatically and started the service immediately:
+
+sudo systemctl enable --now nginx
+sudo systemctl status nginx
+systemctl: Manages Linux services.
+
+enable: Auto-start service on boot.
+
+--now: Start service immediately.
+
+status: Check if the service is running.
+
+Step 4: Verify Apache Services on App Servers
+Before configuring the load balancer, we checked if Apache was running on all App Servers:
+
+ssh tony@stapp01 'sudo ss -ltnp | grep httpd'
+ssh steve@stapp02 'sudo ss -ltnp | grep httpd'
+ssh banner@stapp03 'sudo ss -ltnp | grep httpd'
+ss -ltnp: Shows listening TCP ports and processes.
+
+grep httpd: Filters output to show Apache only.
+
+💡 Think of this as checking which departments are open and ready to handle visitors.
+
+All servers were listening on port 8087, confirming that Apache was active.
+
+Step 5: Backup Nginx Configuration
+Before making changes, we backed up the original Nginx config:
+
+sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
+💡 Always keep a backup like taking a photo of the office layout before rearranging it.
+
+Step 6: Configure Load Balancing
+We edited /etc/nginx/nginx.conf to add the following:
+
+http {
+    upstream app_servers {
+        server 172.16.238.10:8087;
+        server 172.16.238.11:8087;
+        server 172.16.238.12:8087;
+    }
+
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://app_servers;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+}
+upstream app_servers: Groups App Servers for load balancing.
+
+proxy_pass: Forwards requests to the App Servers.
+
+proxy_set_header: Preserves visitor info like IP address.
+
+💡 Analogy: The receptionist sends visitors to the next available department and keeps track of their details.
+
+Step 7: Test Nginx Configuration
+
+sudo nginx -t
+Checks for syntax errors before applying changes.
+
+Ensures Nginx will start without issues.
+
+Step 8: Restart Nginx
+
+
+sudo systemctl restart nginx
+Applies the new load-balancing configuration.
+💡 Like telling the receptionist to start following the new visitor rules.
+
+Step 9: Verify Website
+After configuration, the website became accessible through the StaticApp button, confirming traffic was evenly distributed across all three App Servers.
+
+Outcome
+LBR server running Nginx successfully
+
+HTTP traffic load-balanced across all App Servers
+
+Apache services unaffected on all App Servers
+
+High availability achieved for the web application
+
+Conclusion
+Using Nginx as a Load Balancer ensures that incoming traffic is efficiently distributed, preventing any single server from being overwhelmed. 
+This setup is critical for production environments where uptime and performance are essential.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-16-configuring-nginx-load-balancer-on-nautilus-infra
