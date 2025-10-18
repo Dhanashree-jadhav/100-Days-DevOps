@@ -1,0 +1,198 @@
+DevOps 100 Days Challenge-Day 19 : Hosting Two Static Websites on Apache (Port 5002)
+
+In this task, we are setting up two static websites on App Server 3 in the Stratos datacenter. 
+Even though the websites are still under development, the goal is to get the server ready for hosting. Here’s how I approached it step by step.
+
+🎯 Objective
+
+Install Apache (httpd) and its dependencies on App Server 3.
+
+Configure Apache to listen on port 5002 instead of the default 80.
+
+Set up two static websites (ecommerce and apps) so they can be accessed as:
+
+http://localhost:5002/ecommerce/
+
+http://localhost:5002/apps/
+
+Test the setup using curl.
+
+Step 1: SSH into App Server 3
+
+From the jump host:
+
+ssh banner@stapp03
+sudo su -
+
+
+ssh → connects to the server.
+
+sudo su - → switches to root user for administrative tasks.
+
+Step 2: Install Apache
+
+Install Apache (httpd) and required dependencies:
+
+yum install httpd -y
+
+
+Verify installation:
+
+httpd -v
+
+
+✅ Apache version 2.4.62 confirmed.
+
+Step 3: Configure Apache to Listen on Port 5002
+
+Edit the main Apache configuration:
+
+vi /etc/httpd/conf/httpd.conf
+
+
+Change the default listening port:
+
+Listen 80
+
+
+to:
+
+Listen 5002
+
+
+This allows Apache to serve traffic on port 5002 instead of the default port 80.
+
+Step 4: Copy Website Files from Jump Host
+
+On the Jump Host, transfer website backups to App Server 3:
+
+scp -r /home/thor/ecommerce banner@stapp03:/tmp/
+scp -r /home/thor/apps banner@stapp03:/tmp/
+
+
+This copies the directories to the /tmp/ folder on App Server 3.
+
+Step 5: Move Websites to Apache Document Root
+
+SSH back into App Server 3 (if not already):
+
+ssh banner@stapp03
+sudo su -
+
+
+Move files to /var/www/html:
+
+mv /tmp/ecommerce /var/www/html/
+mv /tmp/apps /var/www/html/
+
+
+Set proper ownership and permissions:
+
+chown -R apache:apache /var/www/html/ecommerce
+chown -R apache:apache /var/www/html/apps
+chmod -R 755 /var/www/html/
+
+
+This ensures Apache can read and serve the website files.
+
+Step 6: Configure Apache Aliases
+
+Edit Apache configuration again:
+
+vi /etc/httpd/conf/httpd.conf
+
+
+Add the following at the end of the file:
+
+Alias /ecommerce /var/www/html/ecommerce
+<Directory "/var/www/html/ecommerce">
+    AllowOverride None
+    Require all granted
+</Directory>
+
+Alias /apps /var/www/html/apps
+<Directory "/var/www/html/apps">
+    AllowOverride None
+    Require all granted
+</Directory>
+
+
+The Alias directive maps the URL path to the actual folder.
+Require all granted allows public access to these directories.
+
+Step 7: Start and Enable Apache
+
+Check Apache configuration syntax:
+
+apachectl configtest
+# Expected: Syntax OK
+
+
+Start and enable the service:
+
+systemctl start httpd
+systemctl enable httpd
+
+
+If firewall is running, allow port 5002:
+
+firewall-cmd --permanent --add-port=5002/tcp
+firewall-cmd --reload
+
+
+Step 8: Verify Websites
+
+Test the websites using curl:
+
+curl http://localhost:5002/ecommerce/
+curl http://localhost:5002/apps/
+
+
+You should see the HTML content of each website:
+
+<h1>KodeKloud</h1>
+<p>This is a sample page for our ecommerce website</p>
+
+✅ Summary
+
+Step
+
+Action
+
+Apache Installation
+
+Installed httpd and dependencies
+
+Listening Port
+
+Configured Apache to listen on 5002
+
+Website Files
+
+Copied from Jump Host → /var/www/html
+
+Permissions
+
+Set ownership to apache:apache and chmod 755
+
+Alias Config
+
+Mapped /ecommerce & /apps URLs to directories
+
+Service Management
+
+Started & enabled Apache, opened firewall port
+
+Testing
+
+Verified with curl
+
+Conclusion
+
+This task demonstrates a basic yet practical scenario in DevOps: hosting multiple static websites on Apache with custom ports and URL paths. 
+It covers server preparation, file management, Apache configuration, and testing — all essential skills for a DevOps engineer.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-19-hosting-two-static-websites-on-apache-port-5002
