@@ -1,0 +1,175 @@
+DevOps 100 Days Challenge-Day 20 : Deploying a PHP Application using Nginx and PHP-FPM
+
+When working as a DevOps Engineer, deploying web applications with Nginx and PHP-FPM is a very common real-world task. In this article, I’ll walk you through Task 20 of KodeKloud DevOps Challenge, where I deployed a PHP-based application on App Server 3.
+
+Task Overview
+
+The Nautilus application development team wants to launch a PHP-based application and deploy it on App Server 3 in the Stratos DC environment.
+Here’s what needed to be done:
+
+🧰 Install Nginx and configure it to listen on port 8095.
+
+📂 Use /var/www/html as the document root.
+
+🐘 Install and configure PHP-FPM version 8.2 with a Unix socket.
+
+🔗 Configure Nginx and PHP-FPM to work together.
+
+🧪 Test the deployment using curl from the jump host.
+
+🪜 Step 1: Connect to the Target Server
+
+We start by connecting to the jump host and then to App Server 3 where the application will be deployed.
+
+ssh thor@jumphost
+ssh banner@stapp03
+
+
+This ensures we’re working on the correct server in the environment.
+
+🌐 Step 2: Install and Configure Nginx
+
+Install Nginx:
+
+sudo yum install nginx -y
+
+
+Start and Enable Nginx:
+
+sudo systemctl start nginx
+sudo systemctl enable nginx
+
+
+Edit Nginx Configuration:
+
+Open the main configuration file:
+
+sudo vi /etc/nginx/nginx.conf
+
+
+Inside the server block, make these changes:
+
+listen 8095;
+root /var/www/html;
+index index.php index.html index.htm;
+
+
+👉 This ensures Nginx listens on port 8095 and serves content from /var/www/html.
+
+🐘 Step 3: Install PHP-FPM 8.2
+
+We need the Remi repository to install the latest PHP version.
+
+sudo dnf install -y epel-release
+sudo dnf install -y https://rpms.remirepo.net/enterprise/remi-release-8.rpm
+sudo dnf module reset php -y
+sudo dnf module enable php:remi-8.2 -y
+sudo dnf install -y php php-fpm
+
+
+Check version:
+
+php -v
+
+
+✅ At this point, PHP 8.2 and PHP-FPM are installed.
+
+⚙️ Step 4: Configure PHP-FPM to Use Socket
+
+Edit the PHP-FPM pool configuration file:
+
+sudo vi /etc/php-fpm.d/www.conf
+
+
+Update the following lines:
+
+listen = /var/run/php-fpm/default.sock
+listen.owner = nginx
+listen.group = nginx
+listen.mode = 0660
+user = nginx
+group = nginx
+
+
+Create the required directory for the socket:
+
+sudo mkdir -p /var/run/php-fpm
+sudo chown -R nginx:nginx /var/run/php-fpm
+
+
+📂 Step 5: Set Up Document Root
+
+sudo mkdir -p /var/www/html
+sudo chown -R nginx:nginx /var/www/html
+sudo chmod -R 755 /var/www/html
+
+
+The index.php and info.php files are already placed in this directory as part of the setup.
+
+🔗 Step 6: Configure Nginx to Work with PHP-FPM
+
+Inside the same server block of nginx.conf, add the following:
+
+location ~ \.php$ {
+    include fastcgi_params;
+    fastcgi_pass unix:/var/run/php-fpm/default.sock;
+    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+}
+
+
+✅ This tells Nginx to forward PHP file requests to PHP-FPM via socket.
+
+🧪 Step 7: Test and Restart Services
+
+Check Nginx configuration:
+
+sudo nginx -t
+
+
+Restart services:
+
+sudo systemctl enable php-fpm
+sudo systemctl start php-fpm
+sudo systemctl restart nginx
+
+
+Verify:
+
+sudo systemctl status nginx
+sudo systemctl status php-fpm
+
+
+🌐 Step 8: Test the Website
+
+From the jump host:
+
+curl http://stapp03:8095/index.php
+curl http://stapp03:8095/info.php
+
+
+If you get a PHP response or PHP info page — the configuration is successful ✅
+
+🧠 What I Learned
+
+🔸 How to install and configure Nginx as a web server.
+
+🔸 How PHP-FPM works with Nginx via socket.
+
+🔸 The difference between listening on TCP and Unix sockets.
+
+🔸 Importance of file permissions and correct user ownership.
+
+🔸 How to test services using curl and nginx -t.
+
+🏁 Final Thoughts
+
+This task gave me hands-on experience with real-world application deployment using Nginx and PHP-FPM.
+Such setups are common in production environments, and knowing how to configure them properly is an essential DevOps skill.
+
+🧠 Key takeaway: Understand why each step is needed, not just how to run the commands.
+
+✨ This was Task 20 of KodeKloud DevOps Challenge — a strong foundational exercise for anyone aiming to master server deployment and web server configurations.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://hashnode.com/post/cmgy0an2a000002l6a5577a0j
