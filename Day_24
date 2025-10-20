@@ -1,0 +1,136 @@
+DevOps 100 Days Challenge-Day 24 : Creating a New Git Branch xfusioncorp_blog from Master
+
+
+The Nautilus development team decided to implement new features in their project repository /usr/src/kodekloudrepos/blog.
+To keep these new changes separate from the stable code, the DevOps task was to create a new Git branch named xfusioncorp_blog from the master branch.
+
+
+This article explains how this was done, step by step.
+
+Step 1: SSH into the Storage Server
+
+First, we need to connect to the Storage server where the repository is located.
+
+ssh natasha@ststor01
+
+
+natasha → username on the server.
+
+ststor01 → hostname/IP of the Storage server.
+
+What happened:
+
+The server’s authenticity was not known, so we typed yes to trust it.
+
+Entered the password → successfully logged in.
+
+Step 2: Navigate to the Repository
+
+The Git repository is located at /usr/src/kodekloudrepos/blog. We navigate there using:
+
+cd /usr/src/kodekloudrepos/blog
+pwd
+
+
+pwd confirms the current directory.
+
+Step 3: Git Safe Directory Issue
+
+Attempting to list branches:
+
+git branch
+
+
+Resulted in an error:
+
+fatal: detected dubious ownership in repository
+
+
+Why: Git detected that the repository folder is owned by another user. This is a security feature.
+
+Solution:
+
+git config --global --add safe.directory /usr/src/kodekloudrepos/blog
+
+
+Tells Git to trust this folder.
+
+After this, Git commands worked.
+
+Step 4: Permission Issue
+
+Trying to create a new branch:
+
+git checkout -b xfusioncorp_blog master
+
+
+Resulted in:
+
+fatal: Unable to create '/usr/src/kodekloudrepos/blog/.git/index.lock': Permission denied
+
+
+Why: Git did not have write permissions in the .git folder.
+
+Temporary fix in this lab environment:
+
+sudo chmod -R 777 /usr/src/kodekloudrepos/blog
+
+
+Gives full permissions to all files.
+⚠️ Note: In production, proper ownership and minimal permissions should be used instead of 777.
+
+Step 5: Local Changes Conflict
+
+After fixing permissions, we tried to create the branch again:
+
+git checkout -b xfusioncorp_blog master
+
+
+Error:
+
+Your local changes would be overwritten by checkout
+
+
+Why: Git detected uncommitted changes in the working directory (data.txt).
+
+Solution:
+
+git stash
+
+
+Temporarily saves changes without committing them.
+
+Working directory becomes clean → safe to switch branches.
+
+Step 6: Create the New Branch
+
+Now we create the branch from master:
+
+git checkout -b xfusioncorp_blog master
+
+
+checkout -b → creates a branch and switches to it immediately.
+
+xfusioncorp_blog → new branch name.
+
+master → branch from which we are creating it.
+
+Verify the branch:
+
+git branch
+
+
+Output:
+
+  kodekloud_blog
+  master
+* xfusioncorp_blog
+
+
+* indicates the current branch.
+
+✅ The new branch xfusioncorp_blog was successfully created.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-24-creating-a-new-git-branch-xfusioncorpblog-from-master
