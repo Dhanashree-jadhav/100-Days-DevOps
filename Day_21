@@ -1,0 +1,126 @@
+DevOps 100 Days Challenge-Day 21 : Creating a Git Repository on the Storage Server 🚀
+
+In this challenge, the Nautilus DevOps team received a requirement from the development team to set up a Git repository for their upcoming project.
+As part of the DevOps team, we need to create this Git repository on the storage server inside the Stratos DC infrastructure.
+
+🧠 Objective of the Task
+
+✅ Install Git on the storage server.
+
+✅ Create a bare Git repository named /opt/ecommerce.git.
+
+✅ Ensure developers can use this as their central repo to push and pull code.
+
+🖥 Step 1: SSH into the Storage Server
+
+First, we connect to the storage server (e.g., ststor01) using SSH.
+
+ssh natasha@ststor01
+
+
+🔑 Note: Username may differ depending on the task (e.g., natasha, banner, etc.).
+
+This allows us to access the server where the repository will be hosted.
+
+📦 Step 2: Install Git Using Yum
+
+Once logged in, we need to install Git.
+Since this is a Red Hat/CentOS based system, we use yum:
+
+sudo yum install git -y
+
+
+✅ Command Breakdown:
+
+sudo → gives admin privileges.
+
+yum → package manager for RHEL/CentOS.
+
+install git → installs the Git package.
+
+-y → auto-confirms installation.
+
+Verify installation:
+
+git --version
+
+
+If successful, it will display something like:
+
+git version 2.x.x
+
+
+📝 Installing Git is a crucial step because the server will host the central repository.
+
+📁 Step 3: Create the Bare Git Repository
+
+We now create a bare repository in the /opt directory.
+
+sudo git init --bare /opt/ecommerce.git
+
+
+✅ Why bare?
+
+A bare repo doesn’t contain a working directory.
+
+It’s ideal as a central repo where developers can push and pull code.
+
+Check if the repository is created:
+
+ls -ld /opt/ecommerce.git
+
+
+Expected output:
+
+drwxr-xr-x. 7 root root 4096 Oct 20 13:45 /opt/ecommerce.git
+
+
+You can also list its internal structure:
+
+ls /opt/ecommerce.git
+
+
+You’ll see:
+
+branches  config  description  HEAD  hooks  info  objects  refs
+
+
+🎯 This confirms the repo was successfully initialized.
+
+🔐 Step 4: Set Proper Permissions (Optional but Important)
+
+To allow the correct user to access and push code to the repository:
+
+sudo chown -R natasha:natasha /opt/ecommerce.git
+
+
+Change natasha to the correct username assigned in the task.
+
+🧰 This ensures the developers or automation systems can access the repository without permission issues.
+
+🧪 Step 5: (Optional) Quick Test Locally
+
+If you want to test:
+
+cd /tmp
+mkdir test-repo
+cd test-repo
+git init
+git remote add origin /opt/ecommerce.git
+
+
+You can make a commit and push to verify everything works.
+
+🚀 Conclusion
+
+In this task, we:
+
+✅ Installed Git on the storage server.
+✅ Created a bare Git repository named /opt/ecommerce.git.
+✅ Set permissions for developer access.
+
+This repo will now serve as a central code hub for the Nautilus development team.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-21-creating-a-git-repository-on-the-storage-server
