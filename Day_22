@@ -1,0 +1,122 @@
+DevOps 100 Days Challenge-Day 22 : Cloning a Bare Git Repository on Storage Server | DevOps Challenge
+
+
+In today’s DevOps challenge, we worked with a bare Git repository on the Storage Server in the Stratos DC. 
+The task was to clone an existing Git repository to a specific directory without making any changes to permissions or files.
+
+
+This task helps build practical knowledge of basic Git operations in a real server environment.
+
+🧭 📝 Task Summary
+
+The repository to be cloned is located at:
+
+/opt/ecommerce.git
+
+
+Target directory:
+
+/usr/src/kodekloudrepos
+
+
+User to perform the operation: natasha
+
+Important: ❌ No permission or configuration changes should be made.
+
+🧠 Step 1: SSH to the Storage Server
+
+We begin by connecting to the Storage Server using the natasha user:
+
+ssh natasha@ststor01
+
+
+On the first connection, you’ll be prompted to confirm the host authenticity:
+
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added 'ststor01' (ED25519) to the list of known hosts.
+
+
+👉 This step ensures we are working on the correct remote server.
+
+📁 Step 2: Check the Target Directory
+
+Before cloning, verify the target directory:
+
+ls -ld /usr/src/kodekloudrepos
+
+
+Output:
+
+drwxr-xr-x 2 natasha natasha 4096 Oct 20 09:17 /usr/src/kodekloudrepos
+
+
+✅ The directory exists and is owned by natasha. No changes are needed here.
+
+🌿 Step 3: Clone the Git Repository
+
+Now, clone the repository into the target directory:
+
+cd /usr/src/kodekloudrepos
+git clone /opt/ecommerce.git
+
+
+Output:
+
+Cloning into 'ecommerce'...
+warning: You appear to have cloned an empty repository.
+done.
+
+
+⚠️ The warning just means there are no commits in the bare repository yet — not an error.
+
+After cloning:
+
+ls -l /usr/src/kodekloudrepos
+
+
+total 4
+drwxr-xr-x 3 natasha natasha 4096 Oct 20 09:22 ecommerce
+
+
+The folder ecommerce has been successfully created.
+
+🧪 Step 4: Verify the Repository
+
+cd ecommerce
+git status
+
+
+On branch master
+No commits yet
+nothing to commit (create/copy files and use "git add" to track)
+
+
+Check the remote configuration:
+
+git remote -v
+
+
+origin  /opt/ecommerce.git (fetch)
+origin  /opt/ecommerce.git (push)
+
+
+✅ The clone is correctly linked to the original bare repo.
+
+🏁 Key Takeaways
+
+Cloning from a local bare repo is identical to cloning from a remote server.
+
+Empty repo warnings are not errors.
+
+Always verify git remote -v to ensure you’re connected to the right origin.
+
+Respecting existing permissions is part of good DevOps practice.
+
+✅ Task Completed Successfully
+This was a simple but essential task in managing Git repositories in real-world environments. 
+Mastering these fundamentals is crucial before working on more advanced Git workflows like branching, merging, or CI/CD integrations.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-22-cloning-a-bare-git-repository-on-storage-server-devops-challenge
+
