@@ -1,0 +1,95 @@
+DevOps 100 Days Challenge-Day 23 : Forking an Existing Git Repository on Git | DevOps Challenge 🚀
+
+
+
+In a real-world software development environment, developers often work on existing projects maintained by other team members.
+Instead of directly editing the main repository, they fork the repository to create their own working copy. 
+This allows them to experiment, build features, and fix bugs without affecting the original codebase.
+
+
+
+Today, as part of my DevOps Challenge, I learned how to fork a repository using Gitea — a self-hosted Git service.
+
+🪄 Objective
+
+A new developer named Jon joined the Nautilus team. He needs to start working on an existing project. To do this, Jon must:
+
+Log in to the Gitea UI
+
+Locate the repository sarah/story-blog
+
+Fork it under his own account jon
+
+Provide screenshots as proof of task completion
+
+🧰 Tools & Credentials Used
+
+🖥️ Gitea Web UI (Self-hosted Git service)
+
+👤 Username: jon
+
+🔐 Password: Jon_pass123
+
+📦 Repository: sarah/story-blog
+
+📷 Screenshots for submission
+
+🪜 Step-by-Step Implementation
+
+1. Access the Gitea UI
+
+I started by clicking the “Gitea UI” button on the top bar of the lab environment.
+This opened the login page of Gitea where I could manage and browse repositories through a web interface.
+
+2. Log in as Jon
+
+I entered the provided credentials:
+
+Username: jon
+Password: Jon_pass123
+
+
+✅ After successful login, I landed on Jon’s Gitea dashboard.
+
+3. Locate the Target Repository
+
+In the Gitea dashboard, I searched for the repository:
+
+sarah/story-blog
+
+
+Once found, I clicked on the repository name to open its details.
+Here, I could see the files, branches, commits, and other contributors.
+
+4. Fork the Repository
+
+On the top-right corner of the repo page, there was a “Fork” button.
+I clicked it, selected Jon’s account as the fork destination, and within a few seconds, a new repository was created:
+
+jon/story-blog
+
+
+This is now Jon’s personal copy of the project.
+
+5. Take and Save Screenshots
+
+To complete the task, I captured the following:
+
+📸 Login as jon on Git
+
+📸 Repository sarah/story-blog before fork
+
+📸 Repository jon/story-blog after fork
+
+These screenshots prove that the task was performed successfully.
+
+🏁 Final Thoughts
+
+This task helped me understand how developers start working on existing projects in real-world scenarios. Forking is a core concept in Git-based collaboration,
+and mastering it is essential for any DevOps engineer or developer.
+
+In upcoming tasks, I’ll be working on cloning the forked repository and making changes using Git commands.
+
+Tomorrow I’ll tackle the next task — stay tuned! 🙌
+
+Blog Link : https://infinitryout.hashnode.dev/devops-100-days-challenge-day-23-forking-an-existing-git-repository-on-git-devops-challenge
